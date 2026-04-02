@@ -1,0 +1,103 @@
+@extends('layouts.app')
+
+@section('content')
+
+    <!-- SWIPER HERO BANNER -->
+    <section class="w-full mx-auto mb-10">
+        <div class="swiper mySwiper overflow-hidden">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <img src="https://angelofshiva.s3.ap-south-1.amazonaws.com/resources/assets/frontend/img/banner2.png" alt="slider 1" class="w-full  object-cover"/>
+                </div>
+                <div class="swiper-slide">
+                    <img src="https://angelofshiva.s3.ap-south-1.amazonaws.com/resources/assets/frontend/img/banner3.png" alt="slider 2" class="w-full object-cover"/>
+                </div>
+                <div class="swiper-slide">
+                    <img src="https://angelofshiva.s3.ap-south-1.amazonaws.com/resources/assets/frontend/img/banner1.png" alt="slider 3" class="w-full  object-cover"/>
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+        </div>
+    </section>
+
+
+    <section class="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row gap-6">
+        <!-- LIVE Announcements (no custom CSS, all Tailwind) -->
+        <aside class="w-full lg:w-1/3">
+            <div class="rounded-3xl bg-white bg-opacity-80 shadow-lg p-6 sticky top-20 border border-orange-100">
+                <div class="flex items-center gap-3 mb-4 pb-4 border-b border-orange-100">
+                    <div class="relative w-16 h-16 flex items-center justify-center">
+                        <!-- Live wave ripple animation moved to body-level as per instruction -->
+                        <span class="relative w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center z-10">
+              <i class="fas fa-bullhorn text-white"></i>
+            </span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800">Live Updates</h3>
+                </div>
+                <div class="h-72 overflow-y-auto flex flex-col gap-2 custom-scrollbar relative">
+                    @foreach($announcements as $announcement)
+                        <div class="p-4 bg-orange-50 rounded-lg border border-orange-100 shadow-sm hover:shadow-md transition-shadow">
+                            @if($announcement->isnew == 'Yes')
+                                <img src="{{ Storage::disk('s3')->url('resources/assets/frontend/img/new.gif') }}" alt="New">
+
+                            @endif
+                            <p class="text-gray-700 text-xs">{!! $announcement->title !!}</p>
+                            <span class="text-xs text-gray-400 mt-2 block">{{ $announcement->created_at->diffForHumans() }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </aside>
+
+        <div class="w-full lg:w-2/3">
+            <div class="rounded-3xl bg-white bg-opacity-80 shadow-lg p-6">
+                <div class="mb-6 border-b border-orange-100 ">
+                    <!-- Basic Tabs System, JS controlled, no custom css -->
+                    <nav class="flex space-x-2" id="mediaTabs">
+                        <button class="media-tab-button active py-3 px-6 border-b-2 border-orange-500 font-semibold rounded-t-xl focus:outline-none text-orange-600 transition-all flex items-center gap-2" data-tab="audioTab">
+                            <i class="fas fa-headphones"></i> Audio
+                        </button>
+                        <button class="media-tab-button py-3 px-6 border-b-2 border-transparent text-gray-500 hover:text-orange-600 font-semibold rounded-t-xl focus:outline-none transition-all flex items-center gap-2" data-tab="videoTab">
+                            <i class="fas fa-video"></i> Video
+                        </button>
+                        <button class="media-tab-button py-3 px-6 border-b-2 border-transparent text-gray-500 hover:text-orange-600 font-semibold rounded-t-xl focus:outline-none transition-all flex items-center gap-2" data-tab="pdfTab">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </nav>
+                </div>
+                <!-- Tab Contents: Audio -->
+                <div id="audioTab" class="media-tab-content space-y-4">
+                    @foreach($audios as $media)
+                        <x-audio-card :media="$media"/>
+                    @endforeach
+                    <div class="mt-6">
+                        {{ $audios->links('pagination::tailwind') }}
+                    </div>
+                </div>
+                <!-- Tab Contents: Video -->
+                <div id="videoTab" class="media-tab-content hidden space-y-4">
+                    @foreach($videos as $media)
+                        <x-video-card :media="$media"/>
+
+                    @endforeach
+                    @if($audios->hasPages())
+                        <div class="mt-6 flex justify-center">
+                            {{ $audios->links() }}
+                        </div>
+                    @endif
+                </div>
+                <!-- Tab Contents: PDF -->
+                <div id="pdfTab" class="media-tab-content hidden space-y-4">
+                    @foreach($pdfs as $media)
+                        <x-pdf-card :media="$media"/>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+@endsection

@@ -1,0 +1,141 @@
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+<div class="audio-card relative overflow-hidden rounded-2xl border border-orange-100 bg-gradient-to-br from-white to-orange-50 shadow-md p-6 flex flex-col md:flex-row gap-6 audio-card"
+     data-audio-src="{{ Storage::disk('s3')->url('resources/assets/audio/'.$media->song) }}"
+     data-title="{{ $media->title }}"
+     data-meta="{{ $media->speaker1?->name }} • {{ $media->category?->category_name }}"
+     data-cover="{{ Storage::disk('s3')->url('resources/assets/audio_thumb/'.$media->attach_pic) }}">
+    <!-- Audio Card Header -->
+    <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-r from-orange-500 to-red-400 px-6 flex items-center justify-center z-10 rounded-t-2xl">
+        <span class="text-white text-xs font-bold uppercase tracking-wider w-full">
+            {{ $media->category?->category_name }}
+            @if($media->subcategory)
+                → {{ $media->subcategory->subcategory_name }}
+            @endif
+        </span>
+
+        <div class="absolute top-0 right-0 bg-red-600 text-[10px] font-black px-6 py-1 h-full rounded-bl-2xl text-white flex items-center">Published : {{$media->publish_date?->format('j M Y')}}</div>
+    </div>
+
+    <div class=" audio-card-image relative w-36 h-36 flex-shrink-0 cursor-pointer group"> <!-- push down due to header -->
+        <!-- Ripple circles removed as per instruction -->
+
+        @if($media->attach_pic)
+            <img class="w-full h-full object-cover rounded-xl shadow-lg"
+                 src="{{ Storage::disk('s3')->url('resources/assets/audio_thumb/'.$media->attach_pic) }}"
+                 alt="Audio Image">
+
+        @elseif($media->subcategory?->setforall_audio)
+            <img class="w-full h-full object-cover rounded-xl shadow-lg"
+                 src="{{ Storage::disk('s3')->url('resources/assets/subcategory/'.$media->subcategory->setforall_audio) }}"
+                 alt="Subcategory Image">
+
+        @elseif($media->category?->setforall_audio)
+            <img class="w-full h-full object-cover rounded-xl shadow-lg"
+                 src="{{ Storage::disk('s3')->url('resources/assets/category/'.$media->category->setforall_audio) }}"
+                 alt="Category Image">
+
+        @else
+            <img class="w-full h-full object-cover rounded-xl shadow-lg"
+                 src="{{ Storage::disk('s3')->url('resources/assets/category/default_front_cat.jpg') }}"
+                 alt="Default Image">
+        @endif
+
+
+
+
+        <button type="button" class=" play-audio-btn absolute inset-0 bg-gradient-to-br from-orange-500/70 to-orange-600/80 flex items-center justify-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" tabindex="-1">
+            <i class="fas fa-play text-3xl text-white" ></i>
+        </button>
+        <!-- Pro Access Badge -->
+        <span class="absolute top-1 right-1 bg-{!! $media->language =="H" ? 'green' : 'red' !!}-100 border border-{!! $media->language =="H" ? 'green' : 'red' !!}-200 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold shadow-sm"><i class="fas fa-valume text-{!! $media->language =="H" ? 'green' : 'red' !!}-600"></i> {!! $media->language =="H" ? 'Hindi' : 'English' !!}</span>
+    </div>
+    <div class="flex-1 flex flex-col" style="margin-top: 2.5rem;">
+        <!-- Header moved to card bar above
+        <span class="text-orange-600 text-xs font-bold uppercase tracking-wider mb-1">Madhuban Bhattis → Prev. Years</span>
+        -->
+        <h2 class="text-sm font-extrabold text-gray-800 mb-1">{{ $media->title }}</h2>
+        @if(!empty($media->audience_place_event))
+            <p class="text-sm text-gray-600 mb-3">{{ $media->audience_place_event }}</p>
+        @endif
+
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+            @if(!empty($media->speaker1))
+                <span class="bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs flex items-center gap-2"><i class="fas fa-user-tie text-orange-600"></i> Speaker: <b class="text-gray-700">{{ $media->speaker1?->name }}</b></span>
+            @endif
+            @if(!empty($media->speaker2))
+                    <span class="bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs flex items-center gap-2"><i class="fas fa-user-tie text-orange-600"></i> Speaker: <b class="text-gray-700">{{ $media->speaker2?->name }}</b></span>
+            @endif
+            @if(!empty($media->murli_date))
+                    <span class="bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs flex items-center gap-2"><i class="fas fa-calendar-alt text-orange-600"></i> Murli: <b class="text-gray-700">{{ $media->murli_date?->format('j M Y') }}</b></span>
+            @endif
+            @if(!empty($media->class_date))
+                    <span class="bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs flex items-center gap-2"><i class="fas fa-clock text-orange-600"></i> Class: <b class="text-gray-700">{{ $media->class_date?->format('j M Y') }}</b></span>
+            @endif
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-2">
+            @if($media->attach_label1 && $media->attach_file)
+                <button
+                    class="resource-btn bg-gradient-to-r from-indigo-300 to-purple-300 text-white px-3 py-1 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2"
+                    data-title="{{ $media->attach_label1 }}"
+                    data-type="file"
+                    data-content="{{ Storage::disk('s3')->url('resources/assets/attachments/'.$media->attach_file) }}">
+                    <i class="fas fa-folder-open"></i> {{ $media->attach_label1 }}
+                </button>
+            @endif
+
+            @if($media->attach_label2 && $media->attach_file2)
+                <button
+                    class="resource-btn bg-gradient-to-r from-green-300 to-blue-300 text-white px-3 py-1 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2"
+                    data-title="{{ $media->attach_label2 }}"
+                    data-type="file"
+                    data-content="{{ Storage::disk('s3')->url('resources/assets/attachments/'.$media->attach_file2) }}">
+                    <i class="fas fa-book"></i> {{ $media->attach_label2 }}
+                </button>
+            @endif
+
+            @if($media->remark)
+                <button
+                    class="resource-btn bg-orange-200 text-orange-900 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-2 shadow"
+                    data-title="{{ $media->remark_label ?? 'Remark' }}"
+                    data-type="html"
+                    data-content="{{ e($media->remark) }}">
+                    <i class="fas fa-info-circle"></i> {{ $media->remark_label ?? 'Remark' }}
+                </button>
+            @endif
+
+            @if($media->note_label)
+                <button
+                    class="resource-btn bg-green-100 text-green-800 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-2 shadow"
+                    data-title="{{ $media->note_label ?? 'Notes' }}"
+                    data-type="html"
+                    data-content="{{ e($media->note) }}">
+                    <i class="fas fa-info-circle"></i> {{ $media->note_label ?? 'Notes' }}
+                </button>
+            @endif
+            @if(!empty($media->note2_label))
+                <button class="info-btn bg-blue-100 hover:bg-blue-300 text-blue-800 font-bold px-3 py-1 rounded-xl text-xs flex items-center gap-2 shadow" data-info-index="3">
+                    <i class="fas fa-info-circle"></i> {{ $media->note2_label ?? 'Notes 2' }}
+                </button>
+            @endif
+            @if(!empty($media->note3_label))
+                <button class="info-btn bg-purple-100 hover:bg-purple-300 text-purple-800 font-bold px-3 py-1 rounded-xl text-xs flex items-center gap-2 shadow" data-info-index="4">
+                    <i class="fas fa-info-circle"></i> {{ $media->note3_label ?? 'Notes 3' }}
+                </button>
+            @endif
+        </div>
+
+
+        <div class="flex flex-wrap gap-2 mt-auto">
+            <button class="play-audio-btn relative bg-gradient-to-r from-orange-600 to-orange-500 text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow hover:from-orange-700 hover:to-orange-600 transition"
+            >
+                <i class="fas fa-play"></i> Play Now
+            </button>
+            <button class="bg-white border-2 border-orange-200 text-orange-600 px-6 py-2 rounded-xl text-sm font-bold hover:bg-orange-50 shadow transition flex items-center gap-2">
+                <i class="fas fa-download"></i> Download
+            </button>
+        </div>
+    </div>
+</div>
