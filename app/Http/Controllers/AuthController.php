@@ -6,13 +6,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ResetPasswordMail;
-
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 
 
 class AuthController extends Controller
@@ -40,7 +41,7 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Password::min(8)],
-            'mobile' => ['nullable', 'string', 'max:15', 'unique:users,mobile'],
+            'mobile' => ['nullable', 'string', 'max:15', 'unique:mobileusers,mobile'],
             'dob' => ['nullable', 'date', 'before:today'],
             'gender' => ['nullable', 'in:Male,Female,Other'],
             'country' => ['nullable', 'string', 'max:100'],
@@ -73,7 +74,7 @@ class AuthController extends Controller
         Auth::login($user);
 
         // Redirect to dashboard with success message
-        return redirect()->route('dashboard')->with('success', 'Registration successful! Welcome to Angel Of Shiva.');
+        return redirect()->route('favorites')->with('success', 'Registration successful! Welcome to Angel Of Shiva.');
     }
 
     public function login(Request $request)
